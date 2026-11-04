@@ -23,6 +23,7 @@ Chào mừng đến với **`fiverr-technical-doc`** — Kho lưu trữ tài li�
 | 05 | [`docs/05-event-driven-kafka-saga.md`](./docs/05-event-driven-kafka-saga.md) | Kiến trúc hướng sự kiện với **Apache Kafka KRaft**, các Kafka Topics, và luồng **Escrow Order Saga** (Hold 100% -> Deliver -> Release 80%/20%). |
 | 06 | [`docs/06-frontend-architecture.md`](./docs/06-frontend-architecture.md) | Kiến trúc **Next.js 15 + React 19 (`fiverr-web`)**, thiết kế `src/lib/api.ts`, DTO Normalizers, và cơ chế **Resilient Dual-Mode Fallback**. |
 | 07 | [`docs/07-devops-docker-kubernetes.md`](./docs/07-devops-docker-kubernetes.md) | Giải thích Multi-stage Dockerfile (`eclipse-temurin:21`), kịch bản `./start.sh`, `init-postgres.sql`, Kubernetes StatefulSets & **Helm v3 Chart**. |
+| 08 | [`docs/08-authentication-and-security.md`](./docs/08-authentication-and-security.md) | Cơ chế **Stateless JWT Edge Authentication**, mã hóa `BCrypt(12)`, ký số `HMAC-SHA256`, truyền Identity Headers (`X-User-Id`, `X-User-Roles`) & chế độ Sandbox/Strict JWT. |
 
 ---
 

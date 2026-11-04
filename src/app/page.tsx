@@ -28,6 +28,7 @@ import {
 type TabId =
   | "overview"
   | "ddd"
+  | "auth"
   | "microservices"
   | "saga"
   | "database"
@@ -808,23 +809,28 @@ export default function TechnicalDocumentationPortal() {
                 icon: Code2,
               },
               {
+                id: "auth" as TabId,
+                label: "3. Cơ chế Authen & JWT Edge",
+                icon: ShieldCheck,
+              },
+              {
                 id: "microservices" as TabId,
-                label: "3. 9 Microservices & 28 APIs",
+                label: "4. 9 Microservices & 28 APIs",
                 icon: Server,
               },
               {
                 id: "saga" as TabId,
-                label: "4. Kafka KRaft & Escrow Saga",
+                label: "5. Kafka KRaft & Escrow Saga",
                 icon: Workflow,
               },
               {
                 id: "database" as TabId,
-                label: "5. 8 PostgreSQL DBs & Redis",
+                label: "6. 8 PostgreSQL DBs & Redis",
                 icon: Database,
               },
               {
                 id: "devops" as TabId,
-                label: "6. Next.js 15, Docker & K8s/Helm",
+                label: "7. Next.js 15, Docker & K8s/Helm",
                 icon: Box,
               },
             ].map((tab) => {
@@ -931,7 +937,7 @@ export default function TechnicalDocumentationPortal() {
 
                 <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-4 text-xs">
                   <p className="font-bold text-emerald-400 mb-2">
-                    Bộ 7 Tài liệu Markdown trong repo này (`docs/`):
+                    Bộ 8 Tài liệu Markdown trong repo này (`docs/`):
                   </p>
                   <ul className="space-y-1.5 text-slate-300 font-mono">
                     <li>• docs/01-system-architecture.md</li>
@@ -941,6 +947,7 @@ export default function TechnicalDocumentationPortal() {
                     <li>• docs/05-event-driven-kafka-saga.md</li>
                     <li>• docs/06-frontend-architecture.md</li>
                     <li>• docs/07-devops-docker-kubernetes.md</li>
+                    <li>• docs/08-authentication-and-security.md</li>
                   </ul>
                 </div>
               </div>
@@ -1359,7 +1366,231 @@ public class OrderController {
           </div>
         )}
 
-        {/* TAB 3: 9 MICROSERVICES & 28 REST APIs */}
+        {/* TAB 3: AUTHENTICATION & JWT EDGE SECURITY */}
+        {activeTab === "auth" && (
+          <div className="space-y-8">
+            <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/30 p-6">
+              <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                <ShieldCheck className="h-4 w-4" />
+                <span>Stateless JWT Edge Authentication & Identity Header Propagation</span>
+              </div>
+              <h2 className="mt-2 text-2xl font-extrabold text-white">
+                Cơ Chế Xác Thực (Authen) & Phân Quyền Giữa Các Microservices
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                Thay vì bắt cả 8 microservices nội bộ (<code>:8081</code>–<code>:8088</code>) phải cấu hình lặp lại bộ lọc giải mã JWT, hệ thống tách biệt nhiệm vụ{" "}
+                <strong>Cấp phát định danh & Băm mật khẩu BCrypt(12)</strong> tại{" "}
+                <code className="text-emerald-300">fiverr-auth-service (:8081)</code> và nhiệm vụ{" "}
+                <strong>Kiểm tra chữ ký HMAC-SHA256 & Truyền Identity Headers</strong> tập trung tại biên{" "}
+                <code className="text-sky-300">fiverr-api-gateway (:8080)</code>.
+              </p>
+
+              <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+                {[
+                  {
+                    step: "Bước 1",
+                    title: "Đăng nhập / Đăng ký (:8081)",
+                    desc: "Client gửi POST /api/v1/auth/login. LoginAuthAccountUseCaseImpl kiểm tra mật khẩu qua BCryptPasswordEncoder(12) trên DB fiverr_auth.",
+                    badge: "BCrypt (Strength 12)",
+                  },
+                  {
+                    step: "Bước 2",
+                    title: "Ký phát Cặp Token JWT",
+                    desc: "JwtTokenAdapter ký số HMAC-SHA256 tạo Access Token (hạn 3600s / 1h) chứa sub, username, email, roles và Refresh Token (hạn 7 ngày).",
+                    badge: "HMAC-SHA256 (256-bit)",
+                  },
+                  {
+                    step: "Bước 3",
+                    title: "Xác thực Biên tại Gateway (:8080)",
+                    desc: "JwtAuthenticationGlobalFilter (Order = -100) chặn request, đọc Authorization: Bearer <token> và gọi JwtTokenValidator kiểm tra chữ ký + hạn dùng.",
+                    badge: "Edge Security Filter",
+                  },
+                  {
+                    step: "Bước 4",
+                    title: "Identity Header Mutation",
+                    desc: "Gateway tự động gắn 3 HTTP Headers nội bộ: X-User-Id, X-User-Email, X-User-Roles trước khi forward xuống các services :8082–:8088.",
+                    badge: "Stateless Propagation",
+                  },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-slate-800 bg-slate-950 p-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-emerald-400">
+                        {item.step}
+                      </span>
+                      <span className="rounded bg-slate-900 border border-slate-800 px-2 py-0.5 font-mono text-[10px] text-sky-300">
+                        {item.badge}
+                      </span>
+                    </div>
+                    <h3 className="mt-2 text-sm font-bold text-white">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
+                      {item.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Code Comparison: Auth Service vs API Gateway */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <span className="font-mono text-xs font-bold text-emerald-400">
+                    fiverr-auth-service (:8081) — JwtTokenAdapter.java
+                  </span>
+                  <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                    Token Issuer
+                  </span>
+                </div>
+                <pre className="mt-4 overflow-x-auto rounded-xl bg-slate-950 p-4 font-mono text-xs leading-relaxed text-emerald-300">
+{`@Component
+public class JwtTokenAdapter implements JwtTokenPort {
+
+    @Override
+    public String generateAccessToken(AuthAccount account) {
+        Instant now = Instant.now();
+        List<String> roleNames = account.getRoles().stream()
+                .map(AccountRole::name)
+                .toList();
+
+        return Jwts.builder()
+                .subject(account.getId().toString())
+                .claim("username", account.getUsername())
+                .claim("email", account.getEmail())
+                .claim("roles", roleNames)
+                .claim("type", "access")
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plusSeconds(3600)))
+                .signWith(secretKey) // HMAC-SHA256
+                .compact();
+    }
+}`}
+                </pre>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <span className="font-mono text-xs font-bold text-sky-400">
+                    fiverr-api-gateway (:8080) — JwtAuthenticationGlobalFilter.java
+                  </span>
+                  <span className="rounded bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold text-sky-300">
+                    Edge Verifier & Header Mutator
+                  </span>
+                </div>
+                <pre className="mt-4 overflow-x-auto rounded-xl bg-slate-950 p-4 font-mono text-xs leading-relaxed text-sky-300">
+{`@Component
+public class JwtAuthenticationGlobalFilter implements GlobalFilter, Ordered {
+
+    public static final String HEADER_USER_ID = "X-User-Id";
+    public static final String HEADER_USER_EMAIL = "X-User-Email";
+    public static final String HEADER_USER_ROLES = "X-User-Roles";
+
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        if (isPublicPath(exchange.getRequest().getURI().getPath())) {
+            return chain.filter(exchange);
+        }
+        // Validate Bearer token signature & expiration
+        JwtClaimsPayload payload = jwtTokenValidator
+                .validateAndExtract(token)
+                .orElseThrow();
+
+        // Propagate verified identity headers to downstream services
+        ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                .header(HEADER_USER_ID, payload.userId())
+                .header(HEADER_USER_EMAIL, payload.email())
+                .header(HEADER_USER_ROLES, String.join(",", payload.roles()))
+                .build();
+        return chain.filter(exchange.mutate().request(mutatedRequest).build());
+    }
+}`}
+                </pre>
+              </div>
+            </div>
+
+            {/* Seeded Accounts & Sandbox vs Strict Mode */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+              <div className="lg:col-span-7 rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+                <h3 className="text-base font-bold text-white">
+                  3 Tài Khoản Định Danh Seeded Sẵn Trong PostgreSQL (`fiverr_auth`)
+                </h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  Mật khẩu mặc định cho cả 3 tài khoản: <code className="text-emerald-300">Password123!</code> (Băm bằng BCrypt strength 12 trong <code>AuthDataInitializer.java</code>).
+                </p>
+                <div className="mt-4 space-y-2.5 text-xs">
+                  {[
+                    {
+                      id: "11111111-1111-1111-1111-111111111111",
+                      username: "alex_architect",
+                      email: "alex.rivera@fiverr.club",
+                      roles: "BUYER, SELLER",
+                      desc: "Top Rated Principal Java & Cloud Architect",
+                    },
+                    {
+                      id: "22222222-2222-2222-2222-222222222222",
+                      username: "elena_ai",
+                      email: "elena.rostova@fiverr.club",
+                      roles: "BUYER, SELLER",
+                      desc: "Level 2 AI & Next.js Full-Stack Specialist",
+                    },
+                    {
+                      id: "33333333-3333-3333-3333-333333333333",
+                      username: "jordan_taylor",
+                      email: "jordan.taylor@fiverr.club",
+                      roles: "BUYER, SELLER",
+                      desc: "Active Buyer & Seller Session mặc định trên fiverr-web",
+                    },
+                  ].map((acc) => (
+                    <div
+                      key={acc.id}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-800 bg-slate-950 p-3.5"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-emerald-400">
+                            {acc.username}
+                          </span>
+                          <span className="text-slate-400">({acc.email})</span>
+                        </div>
+                        <p className="mt-0.5 font-mono text-[11px] text-slate-500">
+                          UUID: {acc.id}
+                        </p>
+                      </div>
+                      <span className="rounded bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 font-mono text-[10px] font-bold text-emerald-300">
+                        {acc.roles}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+                <h3 className="text-base font-bold text-white">
+                  Chế độ Demo/Swagger Mở vs. Strict JWT Mode
+                </h3>
+                <p className="mt-1 text-xs leading-relaxed text-slate-300">
+                  Mặc định trong <code>fiverr-api-gateway/src/main/resources/application.yml</code>, biến{" "}
+                  <code>security.jwt.public-paths</code> được mở cho các đường dẫn <code>/api/v1/*</code> để hỗ trợ kiểm thử trực tiếp trên Swagger UI và trải nghiệm nhanh.
+                </p>
+                <p className="mt-3 text-xs font-semibold text-amber-300">
+                  Cấu hình bật chế độ Strict JWT Production (bắt buộc Bearer Token):
+                </p>
+                <pre className="mt-2 overflow-x-auto rounded-xl bg-slate-950 p-3.5 font-mono text-[11px] text-amber-300">
+{`security:
+  jwt:
+    secret: \${JWT_SECRET}
+    public-paths: /api/v1/auth,/api/v1/gigs,/api/v1/categories,/api/v1/reviews,/actuator,/fallback`}
+                </pre>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: 9 MICROSERVICES & 28 REST APIs */}
         {activeTab === "microservices" && (
           <div className="space-y-8">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
