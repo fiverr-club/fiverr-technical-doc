@@ -42,6 +42,7 @@ interface RepoInfo {
   db: string;
   description: string;
   githubUrl: string;
+  liveUrl?: string;
   swaggerUrl?: string;
 }
 
@@ -72,6 +73,7 @@ const REPOSITORIES: RepoInfo[] = [
     description:
       "Giao diện Marketplace chính: 3-Tier Gig Configurator, Escrow Checkout, Order Workspace, Seller Studio, Real-time Inbox & Live API Explorer.",
     githubUrl: "https://github.com/fiverr-club/fiverr-web",
+    liveUrl: "https://fiverr-web-seven.vercel.app",
   },
   {
     id: 2,
@@ -82,6 +84,7 @@ const REPOSITORIES: RepoInfo[] = [
     description:
       "Cổng tài liệu kỹ thuật tương tác (Interactive Technical Documentation Portal) & Sổ tay giải thích toàn bộ công nghệ của fiverr-club.",
     githubUrl: "https://github.com/fiverr-club/fiverr-technical-doc",
+    liveUrl: "https://fiverr-technical-doc.vercel.app",
   },
   {
     id: 3,
@@ -689,13 +692,24 @@ export default function TechnicalDocumentationPortal() {
   const [apiSearch, setApiSearch] = useState<string>("");
   const [gatewayOnline, setGatewayOnline] = useState<boolean | null>(null);
   const [gatewayChecking, setGatewayChecking] = useState<boolean>(false);
+  const [marketplaceUrl, setMarketplaceUrl] = useState<string>(
+    "https://fiverr-web-seven.vercel.app"
+  );
 
   const checkGatewayHealth = async () => {
     setGatewayChecking(true);
     try {
+      const isHttps =
+        typeof window !== "undefined" && window.location.protocol === "https:";
+      const configuredGateway = process.env.NEXT_PUBLIC_API_GATEWAY_URL || "";
+      if (isHttps && !configuredGateway.startsWith("https://")) {
+        setGatewayOnline(false);
+        return;
+      }
+      const gatewayBase = configuredGateway || "http://localhost:8080";
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 2500);
-      const res = await fetch("http://localhost:8080/api/v1/gateway/status", {
+      const res = await fetch(`${gatewayBase}/`, {
         signal: controller.signal,
       });
       clearTimeout(timer);
@@ -708,6 +722,16 @@ export default function TechnicalDocumentationPortal() {
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isLocal =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1";
+      setMarketplaceUrl(
+        isLocal
+          ? "http://localhost:3000"
+          : "https://fiverr-web-seven.vercel.app"
+      );
+    }
     checkGatewayHealth();
   }, []);
 
@@ -773,12 +797,12 @@ export default function TechnicalDocumentationPortal() {
             </button>
 
             <a
-              href="http://localhost:3000"
+              href={marketplaceUrl}
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3.5 py-1.5 text-xs font-bold text-slate-950 hover:bg-emerald-400 transition"
             >
-              <span>Mở Marketplace (:3000)</span>
+              <span>Mở Marketplace</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
 
@@ -1064,6 +1088,17 @@ export default function TechnicalDocumentationPortal() {
                               <span>GitHub</span>
                               <ExternalLink className="h-3 w-3" />
                             </a>
+                            {repo.liveUrl && (
+                              <a
+                                href={repo.liveUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 rounded bg-sky-500/20 px-2 py-1 text-[11px] font-medium text-sky-300 hover:bg-sky-500/30"
+                              >
+                                <span>Live HTTPS</span>
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
                             {repo.swaggerUrl && (
                               <a
                                 href={repo.swaggerUrl}

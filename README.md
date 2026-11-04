@@ -29,10 +29,10 @@ Chào mừng đến với **`fiverr-technical-doc`** — Kho lưu trữ tài li�
 
 ## Bảng Tổng hợp 13 Repositories trong Hệ sinh thái `fiverr-club`
 
-| # | Repository | Port | Tech Stack chính | Trách nhiệm Nghiệp vụ (Bounded Context) |
+| # | Repository | Port / Production HTTPS | Tech Stack chính | Trách nhiệm Nghiệp vụ (Bounded Context) |
 |---|---|---|---|---|
-| 1 | [`fiverr-web`](https://github.com/fiverr-club/fiverr-web) | `3000` | Next.js 15, React 19, TypeScript, Tailwind CSS | Giao diện Marketplace, 3-Tier Package Selector, Order Escrow Workspace, Seller Studio, Real-time Inbox, Live API Explorer. |
-| 2 | [`fiverr-technical-doc`](https://github.com/fiverr-club/fiverr-technical-doc) | `3001` | Next.js 15, React 19, TypeScript, Markdown | Cổng tài liệu kỹ thuật tương tác (Interactive Technical Documentation Portal) & Sổ tay kiến trúc toàn hệ thống. |
+| 1 | [`fiverr-web`](https://github.com/fiverr-club/fiverr-web) | `:3000` / [https://fiverr-web-seven.vercel.app](https://fiverr-web-seven.vercel.app) | Next.js 15, React 19, TypeScript, Tailwind CSS | Giao diện Marketplace, 3-Tier Package Selector, Order Escrow Workspace, Seller Studio, Real-time Inbox, Live API Explorer. |
+| 2 | [`fiverr-technical-doc`](https://github.com/fiverr-club/fiverr-technical-doc) | `:3001` / [https://fiverr-technical-doc.vercel.app](https://fiverr-technical-doc.vercel.app) | Next.js 15, React 19, TypeScript, Markdown | Cổng tài liệu kỹ thuật tương tác (Interactive Technical Documentation Portal) & Sổ tay kiến trúc toàn hệ thống. |
 | 3 | [`fiverr-api-gateway`](https://github.com/fiverr-club/fiverr-api-gateway) | `8080` | Spring Cloud Gateway (WebFlux), Redis, JWT | Cổng API tập trung (Unified Edge Router), xác thực JWT, giới hạn tần suất (Rate Limiting), định tuyến `/api/v1/**`. |
 | 4 | [`fiverr-auth-service`](https://github.com/fiverr-club/fiverr-auth-service) | `8081` | Java 21, Spring Boot 3.3.4, PostgreSQL (`fiverr_auth`) | Quản lý định danh (IAM), đăng ký, đăng nhập, mã hóa mật khẩu BCrypt, cấp phát JWT Access/Refresh Token, RBAC (`BUYER`, `SELLER`). |
 | 5 | [`fiverr-user-service`](https://github.com/fiverr-club/fiverr-user-service) | `8082` | Java 21, Spring Boot 3.3.4, PostgreSQL (`fiverr_user`) | Hồ sơ Freelancer & Buyer, kỹ năng, ngôn ngữ, nâng cấp lên Seller, đánh giá hạng Seller (`NEW_SELLER`, `LEVEL_ONE`, `LEVEL_TWO`, `TOP_RATED`). |

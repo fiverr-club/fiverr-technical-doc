@@ -205,3 +205,4 @@ Trong file `fiverr-api-gateway/src/main/resources/application.yml`, danh sách �
       public-paths: /api/v1/auth,/api/v1/gigs,/api/v1/categories,/api/v1/reviews,/actuator,/fallback
   ```
   Khi đó, mọi yêu cầu Đặt hàng (`/api/v1/orders`), Giữ/Giải ngân Ký quỹ (`/api/v1/payments`), Rút tiền (`/api/v1/wallets`), hay Nhắn tin (`/api/v1/messages`) nếu thiếu header `Authorization: Bearer <valid_jwt>` sẽ bị `JwtAuthenticationGlobalFilter` chặn ngay tại cổng `:8080` với mã lỗi `401 Unauthorized`.
+
